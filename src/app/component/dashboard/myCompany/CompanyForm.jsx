@@ -52,6 +52,28 @@ export default function CompanyForm({ onClose }) {
     description: "",
   });
 
+  const uploadImageToImageBB = async (imageFile) => {
+    const formData = new FormData();
+
+    formData.append("image", imageFile);
+
+    const response = await fetch(
+      `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error("Image upload failed");
+    }
+
+    return data.data.url;
+  };
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -71,27 +93,33 @@ export default function CompanyForm({ onClose }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+
+  try {
+    let logoUrl = "";
+
+    if (logo?.file) {
+      logoUrl = await uploadImageToImageBB(logo.file);
+    }
 
     const companyData = {
       ...formData,
-      logo: logo?.file?.name || null,
+      logo: logoUrl,
       status: "pending",
       createdAt: new Date(),
     };
 
-    console.log(companyData);
-
     const payload = await createCompany(companyData);
-    if(payload.insertedId){
+
+    if (payload.insertedId) {
       toast.success("Company Profile Created Successfully");
       onClose?.();
     }
-
-    // TODO: Save to database
-
-    // alert("Company submitted successfully!");
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to create company profile");
+  }
+};
 
   return (
     <div>
@@ -191,7 +219,7 @@ export default function CompanyForm({ onClose }) {
                 )
               }
               placeholder="City, Country"
-              
+
             />
           </div>
         </div>

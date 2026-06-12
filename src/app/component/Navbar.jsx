@@ -52,7 +52,7 @@ export default function Navbar() {
           {/* Sign In */}
          { user? <>
           <div className="flex gap-4 items-center">
-            <h1>Hi {user.name}</h1>
+            <Link  href="/dashbord"><h1>Hi {user.name}</h1></Link>
             <Button variant="danger" onClick={handleSignOut}>Sign Out</Button>
           </div>
 
