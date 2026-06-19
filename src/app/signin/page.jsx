@@ -7,7 +7,7 @@ import Link from "next/link";
 import { authClient } from "../lib/auth-client"; // Matches your setup path!
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegEyeSlash } from "react-icons/fa6";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -15,6 +15,9 @@ export default function SignInPage() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
     const [showPassword, setShowPassword] = useState(false);
+
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || "/";
 
     // Safely updates form fields using unique keys (matches your sign-up logic)
     const handleFieldChange = (key, value) => {
@@ -29,14 +32,14 @@ export default function SignInPage() {
             const res = await authClient.signIn.email({
                 email: form.email,
                 password: form.password,
-                callbackURL: "/" 
+                
             });
 
             if (res?.error) {
                 setMessage({ type: "error", text: res.error.message || "Sign in failed." });
             } else {
                 setMessage({ type: "success", text: "Signed in successfully!" });
-                router.push("/");
+                router.push(redirectTo);
             }
         } catch (err) {
             setMessage({ type: "error", text: err.message || "Something went wrong" });
@@ -130,8 +133,8 @@ export default function SignInPage() {
                     </Button>
 
                     <p className="text-center text-sm text-gray-600">
-                        Don't have an account?{" "}
-                        <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+                        Do not have an account?{" "}
+                        <Link href={`/signup?redirect=${redirectTo}`} className="text-blue-600 hover:underline font-medium">
                             Go to sign up
                         </Link>
                     </p>

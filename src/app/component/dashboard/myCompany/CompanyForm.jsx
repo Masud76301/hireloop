@@ -16,6 +16,7 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 import { createCompany } from "@/app/lib/action/companies";
+import Image from "next/image";
 
 const industries = [
   "Technology",
@@ -38,7 +39,7 @@ const employeeRanges = [
   "1000+ employees",
 ];
 
-export default function CompanyForm({ onClose }) {
+export default function CompanyForm({ onClose, recruiter }) {
   const fileInputRef = useRef(null);
 
   const [logo, setLogo] = useState(null);
@@ -50,6 +51,7 @@ export default function CompanyForm({ onClose }) {
     location: "",
     employeeCount: "1-10 employees",
     description: "",
+    recruiterId: recruiter?.id
   });
 
   const uploadImageToImageBB = async (imageFile) => {
@@ -93,33 +95,33 @@ export default function CompanyForm({ onClose }) {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    let logoUrl = "";
+    try {
+      let logoUrl = "";
 
-    if (logo?.file) {
-      logoUrl = await uploadImageToImageBB(logo.file);
+      if (logo?.file) {
+        logoUrl = await uploadImageToImageBB(logo.file);
+      }
+
+      const companyData = {
+        ...formData,
+        logo: logoUrl,
+        status: "pending",
+        createdAt: new Date(),
+      };
+
+      const payload = await createCompany(companyData);
+
+      if (payload.insertedId) {
+        toast.success("Company Profile Created Successfully");
+        onClose?.();
+      }
+    } catch (error) {
+      // console.error(error);
+    alert("Failed to create company profile");
     }
-
-    const companyData = {
-      ...formData,
-      logo: logoUrl,
-      status: "pending",
-      createdAt: new Date(),
-    };
-
-    const payload = await createCompany(companyData);
-
-    if (payload.insertedId) {
-      toast.success("Company Profile Created Successfully");
-      onClose?.();
-    }
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to create company profile");
-  }
-};
+  };
 
   return (
     <div>
@@ -156,7 +158,7 @@ export default function CompanyForm({ onClose }) {
 
             <Select
               selectedKeys={[formData.industry]}
-              onSelectionChange={(keys) =>
+              onChange={(keys) =>
                 handleChange(
                   "industry",
                   Array.from(keys)[0]
@@ -234,7 +236,7 @@ export default function CompanyForm({ onClose }) {
 
             <Select
               selectedKeys={[formData.employeeCount]}
-              onSelectionChange={(keys) =>
+              onChange={(keys) =>
                 handleChange(
                   "employeeCount",
                   Array.from(keys)[0]
@@ -276,8 +278,10 @@ export default function CompanyForm({ onClose }) {
             >
               <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-zinc-600 bg-zinc-900">
                 {logo ? (
-                  <img
+                  <Image
                     src={logo.preview}
+                    width={80}
+                    height={80}
                     alt="Logo Preview"
                     className="h-full w-full rounded-xl object-cover"
                   />

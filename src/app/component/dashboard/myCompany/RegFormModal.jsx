@@ -5,7 +5,7 @@ import { Button, Modal } from "@heroui/react";
 import { FiPlus } from "react-icons/fi";
 import CompanyForm from "./CompanyForm";
 
-export function RegFormModal() {
+export function RegFormModal({recruiter}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -49,7 +49,7 @@ export function RegFormModal() {
               </div>
             </Modal.Header>
 
-            <CompanyForm onClose={() => setOpen(false)} />
+            <CompanyForm recruiter={recruiter} onClose={() => setOpen(false)} />
           </Modal.Dialog>
         </Modal.Container>
       </Modal.Backdrop>

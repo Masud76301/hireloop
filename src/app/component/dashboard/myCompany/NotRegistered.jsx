@@ -5,7 +5,7 @@ import { FiPlus } from 'react-icons/fi';
 import { RegFormModal } from './RegFormModal';
 
 
-const NotRegistered = () => {
+const NotRegistered = ({recruiter}) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="flex min-h-112 flex-col items-center justify-center rounded-3xl border border-default-200 bg-content1">
@@ -17,7 +17,7 @@ const NotRegistered = () => {
                 Register your company to start hiring.
             </p>
 
-            <RegFormModal />
+            <RegFormModal recruiter={recruiter} />
 
 
         </div>

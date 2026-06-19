@@ -8,6 +8,8 @@ import Link from "next/link";
 import { authClient } from "../lib/auth-client";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegEyeSlash } from "react-icons/fa6";
+import { useRouter, useSearchParams } from "next/navigation";
+
 
 export default function SignUpPage() {
     const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -15,6 +17,10 @@ export default function SignUpPage() {
     const [message, setMessage] = useState({ type: "", text: "" });
     const [showPassword, setShowPassword] = useState(false);
     const [role,setRole]= useState("seeker");
+    
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || "/"
+    const router =useRouter();
 
     // Safely updates form fields using unique keys
     const handleFieldChange = (key, value) => {
@@ -31,13 +37,14 @@ export default function SignUpPage() {
                 role,
                 email: form.email,
                 password: form.password,
-                callbackURL: "/"
+               
             });
 
             if (res?.error) {
                 setMessage({ type: "error", text: res.error.message || "Signup failed." });
             } else {
                 setMessage({ type: "success", text: "Account created successfully!" });
+                router.push(redirectTo);
             }
         } catch (err) {
             setMessage({ type: "error", text: err.message || "Something went wrong" });
@@ -173,7 +180,7 @@ export default function SignUpPage() {
 
                     <p className="text-center text-sm text-gray-600">
                         Already have an account?{" "}
-                        <Link href="/signin" className="text-blue-600 hover:underline font-medium">
+                        <Link href={`/signin?redirect=${redirectTo}`} className="text-blue-600 hover:underline font-medium">
                             Go to sign in
                         </Link>
                     </p>
