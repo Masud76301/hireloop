@@ -31,12 +31,15 @@ export default function SignUpPage() {
         setLoading(true);
         setMessage({ type: "", text: "" });
 
+        const plan = role === "seeker" ? "seeker_free" : "recruiter_free";
+
         try {
             const res = await authClient.signUp.email({
                 name: form.name,
                 role,
                 email: form.email,
                 password: form.password,
+                plan
                
             });
 

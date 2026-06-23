@@ -29,6 +29,7 @@ const JobApply = ({job, applicant}) => {
             applicantName:applicant?.name,
             applicantEmail:applicant?.email,
             applicantId:applicant?.id,
+            status:'applied', 
         };
 
         console.log(applicationData);

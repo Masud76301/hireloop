@@ -1,122 +1,200 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
-import { authClient, signOut, useSession } from "../lib/auth-client";
+import Link from "next/link";
 import { Button } from "@heroui/react";
-
+import { signOut, useSession } from "../lib/auth-client";
 
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const { data: session, error } = useSession();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session, isPending } = useSession();
+  // console.log("Session data in Navbar:", session, "Is pending:", isPending);
   const user = session?.user;
- 
-  const handleSignOut=async ()=>{
-    await signOut()
-  }
-  return (
-    <nav className="w-full bg-linear-to-r from-[#1a1a1a] to-[#0f0f0f] py-2">
-      <div className="container mx-auto px-4 flex items-center justify-between">
 
-        {/* Left Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="HireLopp Logo"
-            width={10}
-            height={10}
-            className="w-10 h-10"
-          />
-          <span className="text-white text-2xl font-semibold">HireLoop</span>
+  const handleSignOut = async () => {
+    await signOut();
+
+  }
+
+  const navLinks = [
+    {
+      label: "Browse Jobs",
+      href: "/browse-jobs",
+    },
+    {
+      label: "Company",
+      href: "/company",
+    },
+    {
+      label: "Pricing",
+      href: "/plans",
+    },
+  ];
+
+  const dashboardLinks = {
+    seeker:'/dashbord/seeker',
+    recruiter : '/dashbord/recruiter',
+    admin: '/dashbord/admin'
+
+  }
+
+  if(user?.email){
+    navLinks.push(
+      {
+        label:"Dashboard",
+        href: dashboardLinks[user?.role || 'seeker']
+      }
+    )
+  }
+
+  return (
+    <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0B0F]/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* LOGO */}
+        <Link href="/" className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 shadow-lg">
+            <span className="text-xl font-bold text-white">P</span>
+          </div>
+
+          <div className="hidden leading-none sm:block">
+            <h1 className="text-lg font-bold text-white">
+              Hire Loop
+            </h1>
+          </div>
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center bg-[#1c1c1c] text-white px-8 py-3 rounded-2xl shadow-lg gap-8">
-          <Link href="/browse-jobs" className="hover:text-gray-300 transition">
-            Browse Jobs
-          </Link>
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-4">
+          {/* Desktop Menu */}
+          <div className="hidden items-center gap-6 md:flex">
+            {/* Nav Links */}
+            <ul className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-2">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="rounded-full px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-          <Link href="/company" className="hover:text-gray-300 transition">
-            Company
-          </Link>
+            {/* Vertical Divider */}
+            <div className="h-6 w-px bg-white/20" />
 
-          <Link href="/pricing" className="hover:text-gray-300 transition">
-            Pricing
-          </Link>
+            {/* Auth Links */}
+            <div className="flex items-center gap-4">
+              {
+                user ?
+                  <div className="flex gap-2 items-center">
+                    <h1 className="text-white">Hi, {user.name}!</h1> 
+                    <Button onClick={handleSignOut}
+                      variant="ghost" className="text-white hover:bg-red-500">Sign Out</Button>
+                 </div>
+                  :
+                  <Link
+                    href="/signin"
+                    className="text-sm font-medium text-violet-400 transition hover:text-violet-300"
+                  >
+                    Sign In
+                  </Link>}
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-600"></div>
-
-          {/* Sign In */}
-         { user? <>
-          <div className="flex gap-4 items-center">
-            <Link  href="/dashbord"><h1>Hi {user.name}</h1></Link>
-            <Button variant="danger" onClick={handleSignOut}>Sign Out</Button>
+              <Button
+                as={Link}
+                href="/register"
+                radius="lg"
+                className="h-11 bg-white px-6 text-sm font-semibold text-black hover:bg-gray-200"
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
 
-         </>:
-          (<Link href="/signin" className="text-blue-400 hover:text-blue-500 transition">
-            Sign In
-          </Link>)}
-
-          {/* Get Started Button */}
-          <Link
-            href="/get-started"
-            className="bg-white text-black px-5 py-2 rounded-xl font-medium hover:bg-gray-100 transition"
+          {/* MOBILE MENU BUTTON */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex items-center justify-center rounded-lg p-2 text-white transition hover:bg-white/10 md:hidden"
+            aria-label="Toggle Menu"
           >
-            Get Started
-          </Link>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden text-white"
-        >
-          <svg
-            className="w-7 h-7"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            {open ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            {isMenuOpen ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
             )}
-          </svg>
-        </button>
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
-      {open && (
-        <div className="md:hidden mt-3 bg-[#1c1c1c] text-white py-4 px-6 space-y-3 rounded-xl mx-4">
-          <div className="space-y-3">
+      {/* MOBILE MENU */}
+      {isMenuOpen && (
+        <div className="border-t border-white/10 bg-[#0B0B0F] md:hidden">
+          <div className="space-y-3 px-4 py-6">
+            {/* Nav Links */}
+            <ul className="space-y-2">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="block rounded-xl px-4 py-3 text-base font-medium text-gray-300 transition hover:bg-white/5 hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-            <div className="flex gap-3 justify-center items-center flex-wrap">
+            {/* Divider */}
+            <div className="border-t border-white/10 pt-4">
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/login"
+                  className="rounded-xl px-4 py-3 text-base font-medium text-violet-400 transition hover:bg-white/5"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
 
-              <Link href="/browse-jobs">Browse Jobs</Link>
-
-              <Link href="/company">Company</Link>
-
-              <Link href="/pricing">Pricing</Link>
-
-              <Link href="/signin" className="text-blue-400">
-                Sign In
-              </Link>
+                <Button
+                  as={Link}
+                  href="/register"
+                  className="bg-white font-semibold text-black"
+                  radius="lg"
+                >
+                  Get Started
+                </Button>
+              </div>
             </div>
-
           </div>
-
-          <Link
-            href="/get-started"
-            className="block bg-white text-black text-center rounded-lg py-2"
-          >
-            Get Started
-          </Link>
         </div>
       )}
     </nav>

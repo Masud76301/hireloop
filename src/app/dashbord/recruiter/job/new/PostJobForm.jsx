@@ -34,7 +34,7 @@ export default function PostJobForm({company}) {
     company: company?.[0].companyName ,
     companyId:company?.[0]._id,
     companyLogo:company?.[0].logo,
-    status: "Approved",
+    status: company?.[0].status,
   };
 
   const handleChange = (e) => {
@@ -89,7 +89,8 @@ export default function PostJobForm({company}) {
           <Link href="/dashbord/recruiter/job"><button type="button" className="text-gray-400 hover:text-white text-xl">&times;</button></Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+        {company?.[0].status!=='approved' && <div className="text-center p-10 text-bold">Please wait to get approval</div>}      
+        {company?.[0].status === 'approved' && <form onSubmit={handleSubmit} className="p-6 space-y-8">
 
           {/* SECTION 1: Job Info */}
           <section className="space-y-4">
@@ -297,7 +298,8 @@ export default function PostJobForm({company}) {
             </button>
           </div>
 
-        </form>
+        </form> }
+        
       </div>
     </div>
   );
